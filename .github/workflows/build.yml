@@ -1,13 +1,11 @@
-name: Fabrica de APK
+name: Gerar Lista IPTV
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  gerar:
     runs-on: ubuntu-latest
-    env:
-      DEBIAN_FRONTEND: noninteractive
     steps:
       - uses: actions/checkout@v4
 
@@ -16,17 +14,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instalar Flet e Dependências
+      - name: Instalar Dependências
         run: |
           pip install --upgrade pip
-          pip install flet requests
+          pip install requests
 
-      - name: Compilar o APK
+      - name: Executar o Robô
         run: |
-          flet build apk --module-name robo
+          python robo.py
 
-      - name: Disponibilizar o APK para Download
+      - name: Salvar a Lista Pronta
         uses: actions/upload-artifact@v4
         with:
-          name: meu-robo-apk
-          path: build/apk/app-release.apk
+          name: lista-iptv-atualizada
+          path: resultado/lista.txt
