@@ -118,10 +118,10 @@ def caçar_links_iptv_org(link_mestre, log_func=print):
         log_func(f"Erro durante a caçada: {e}")
     return links_finais
 
-def executar_processamento(log_func=print):
+def executar_processamento(log_func=print, custom_drive=None, custom_mestre=None):
     os.makedirs(PASTA_DESTINO, exist_ok=True)
-    link_drive_atual = "https://drive.google.com/uc?id=1kk-OsN3R02flYm2Nl0kYZ7qI3JdzhwB_&export=download"
-    link_mestre_atual = "https://raw.githubusercontent.com/iptv-org/iptv/master/streams/br.m3u"
+    link_drive_atual = custom_drive or "https://drive.google.com/uc?id=1kk-OsN3R02flYm2Nl0kYZ7qI3JdzhwB_&export=download"
+    link_mestre_atual = custom_mestre or "https://raw.githubusercontent.com/iptv-org/iptv/master/streams/br.m3u"
     
     conteudo_base = baixar_lista_do_drive(link_drive_atual, log_func)
     if not conteudo_base and os.path.exists("lista.txt"):
@@ -239,7 +239,7 @@ def main(page: ft.Page):
         btn_disparar.disabled = True
         page.update()
         try:
-            executar_processamento(registrar_log)
+            executar_processamento(registrar_log, txt_drive.value.strip(), txt_mestre.value.strip())
         except Exception as e:
             registrar_log(f"Erro crítico no processo: {e}")
         btn_disparar.disabled = False
@@ -280,6 +280,8 @@ def main(page: ft.Page):
 
 if __name__ == "__main__":
     if os.environ.get("GITHUB_ACTIONS") or len(sys.argv) > 1:
-        executar_processamento(print)
+        d_arg = sys.argv[1] if len(sys.argv) > 1 else None
+        m_arg = sys.argv[2] if len(sys.argv) > 2 else None
+        executar_processamento(print, custom_drive=d_arg, custom_mestre=m_arg)
     else:
         ft.app(target=main)
