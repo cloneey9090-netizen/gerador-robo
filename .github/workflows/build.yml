@@ -2,6 +2,15 @@ name: Gerar Lista IPTV
 
 on:
   workflow_dispatch:
+    inputs:
+      link_drive:
+        description: 'Link do Google Drive (Base):'
+        required: true
+        default: 'https://drive.google.com/uc?id=1kk-OsN3R02flYm2Nl0kYZ7qI3JdzhwB_&export=download'
+      link_mestre:
+        description: 'Link da Fonte Mestre (br.m3u):'
+        required: true
+        default: 'https://raw.githubusercontent.com/iptv-org/iptv/master/streams/br.m3u'
 
 jobs:
   gerar:
@@ -20,8 +29,15 @@ jobs:
           pip install flet requests
 
       - name: Executar o Robô
+        env:
+          INPUT_DRIVE: ${{ github.event.inputs.link_drive }}
+          INPUT_MESTRE: ${{ github.event.inputs.link_mestre }}
         run: |
-          python robo.py
+          python -c '
+          import os, robo
+          # Sobrescreve os links dinamicamente com o que você digitou na interface do GitHub
+          robo.executar_com_links("${{ github.event.inputs.link_drive }}", "${{ github.event.inputs.link_mestre }}")
+          '
 
       - name: Salvar a Lista Pronta
         uses: actions/upload-artifact@v4
