@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DEBIAN_FRONTEND: noninteractive
     steps:
       - uses: actions/checkout@v4
 
@@ -14,10 +16,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instalar Flet
+      - name: Instalar Flet e Dependências
         run: |
           pip install --upgrade pip
-          pip install flet
+          pip install flet requests
 
       - name: Compilar o APK
         run: |
