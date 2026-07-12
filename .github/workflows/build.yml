@@ -1,4 +1,4 @@
-name: Gerar e Sincronizar IPTV
+name: Gerar e Enviar para o Google Drive
 
 on:
   workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
         run: |
           python robo.py "${{ github.event.inputs.link_drive }}" "${{ github.event.inputs.link_mestre }}"
 
-      - name: Enviar Lista Direto para o Google Drive
+      - name: Enviar Ficheiro para o Google Drive
         uses: JavierSegoviaCordoba/google-drive-upload-action@v1
         with:
           drive-parent-folder-id: 'ID_DA_SUA_PASTA_NO_DRIVE'
