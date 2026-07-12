@@ -33,12 +33,9 @@ jobs:
           python robo.py "${{ github.event.inputs.link_drive }}" "${{ github.event.inputs.link_mestre }}"
 
       - name: Enviar Ficheiro para o Google Drive
-        uses: JavierSegoviaCordoba/google-drive-upload-action@v1
+        uses: adityak74/google-drive-upload-git-action@main
         with:
-          drive-parent-folder-id: 'ID_DA_SUA_PASTA_NO_DRIVE'
-          export-name: 'lista.txt'
-          files: 'resultado/lista.txt'
+          filename: 'resultado/lista.txt'
+          folderId: 'ID_DA_SUA_PASTA_NO_DRIVE'
+          credentials: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
           overwrite: 'true'
-          client-id: ${{ secrets.GOOGLE_DRIVE_CLIENT_ID }}
-          client-secret: ${{ secrets.GOOGLE_DRIVE_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.GOOGLE_DRIVE_REFRESH_TOKEN }}
