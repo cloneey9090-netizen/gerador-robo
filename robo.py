@@ -51,12 +51,28 @@ def injetar_marcador_vlc(linha, url_link=""):
     if not linha.startswith("#EXTINF"):
         return linha
         
-    eh_http_inseguro = url_link.lower().startswith("http://")
+    url_lower = url_link.lower()
+    
+    # Deteta se o link é pesado/complexo (mesmo com https)
+    eh_https_pesado = "https://" in url_lower and any(param in url_link for param in ["token=", "key=", "auth=", "secure=", "sig=", ".ts", "/live/"])
+    eh_http_inseguro = url_lower.startswith("http://")
     tem_tokens_pesados = any(param in url_link for param in ["token=", "key=", "auth=", "secure=", "sig="])
     tem_porta_incomum = bool(re.search(r':\d{4,5}/', url_link))
     
-    if (eh_http_inseguro or tem_tokens_pesados or tem_porta_incomum) and 'marcador=' not in linha:
-        return re.sub(r'(#EXTINF:[-\d]+)', r'\1 marcador="VLC"', linha)
+    # Se for um link pesado que o Clapp engasga, criamos o obstáculo total para ele
+    precisa_vlc_obrigatorio = eh_http_inseguro or tem_tokens_pesados or tem_porta_incomum or eh_https_pesado
+    
+    if precisa_vlc_obrigatorio:
+        linha_ajustada = linha
+        # Adiciona marcador VLC se não existir
+        if 'marcador=' not in linha_ajustada:
+            linha_ajustada = re.sub(r'(#EXTINF:[-\d]+)', r'\1 marcador="VLC"', linha_ajustada)
+        
+        # Cria o obstáculo no metadado para o player web recusar a renderização nativa
+        if 'tvg-rec=' not in linha_ajustada:
+            linha_ajustada = re.sub(r'(#EXTINF:[-\d]+)', r'\1 tvg-rec="false"', linha_ajustada)
+            
+        return linha_ajustada
         
     return linha
 
