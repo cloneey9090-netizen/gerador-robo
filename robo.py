@@ -6,7 +6,7 @@ import flet as ft
 import requests
 
 # =====================================================================
-#                PAINEL DE CONTROLE DO COMANDANTE (FLET)
+#                 PAINEL DE CONTROLE DO COMANDANTE (FLET)
 # =====================================================================
 
 PASTA_DESTINO = "resultado"
@@ -29,6 +29,12 @@ CANAIS_ALVO = [
 def limpar_nome(texto):
     texto_limpo = re.sub(r'\s*\([^)]*\)', '', texto)
     return re.sub(r'\s+', ' ', texto_limpo).strip().lower()
+
+def eh_canal_estrangeiro(nome_bruto):
+    """Filtra e bloqueia nomes com indicativos evidentes de língua estrangeira"""
+    bruto_upper = nome_bruto.upper()
+    bloqueios = ["ESPANOL", "SPANISH", "LATINO", "LAT.", "LATIN", "USA", "ENG", "ENGLISH", "[ES]", "[EN]", "(ES)", "(EN)"]
+    return any(termo in bruto_upper for termo in bloqueios)
 
 def injetar_marcador_vlc(linha, url_link=""):
     if not linha.startswith("#EXTINF"):
@@ -72,7 +78,7 @@ def baixar_lista_do_drive(link_drive, log_func=print):
 
 def caçar_links_iptv_org(link_mestre, log_func=print):
     links_finais = {}
-    log_func("Caçador focado no repositório mestre com Teste de Pulso Resiliente...")
+    log_func("Caçador focado no repositório mestre (Filtro PT-BR Ativo)...")
     try:
         resposta = requests.get(link_mestre, timeout=20)
         if resposta.status_code != 200:
@@ -85,6 +91,11 @@ def caçar_links_iptv_org(link_mestre, log_func=print):
                 match = re.search(r',(.+)$', linha)
                 if not match: continue
                 nome_bruto_git = match.group(1).strip()
+                
+                # Ignora se for canal estrangeiro
+                if eh_canal_estrangeiro(nome_bruto_git):
+                    continue
+                    
                 nome_limpo_git = limpar_nome(nome_bruto_git)
                 
                 for alvo in CANAIS_ALVO:
@@ -110,7 +121,7 @@ def caçar_links_iptv_org(link_mestre, log_func=print):
                                         "extinf_original": injetar_marcador_vlc(linha, link_candidato),
                                         "nome_bruto": nome_bruto_git
                                     }
-                                    log_func(f"✅ [VALIDADO] Canal {alvo} operacional")
+                                    log_func(f"✅ [VALIDADO] Canal {alvo} operacional (PT)")
                                 else:
                                     log_func(f"⚠️ [MORTO] Link de {alvo} sem resposta, ignorado.")
                                 break
