@@ -285,3 +285,4 @@ if __name__ == "__main__":
         executar_processamento(print, custom_drive=d_arg, custom_mestre=m_arg)
     else:
         ft.app(target=main)
+
