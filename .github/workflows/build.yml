@@ -29,14 +29,10 @@ jobs:
           pip install flet requests
 
       - name: Executar o Robô
-        env:
-          INPUT_DRIVE: ${{ github.event.inputs.link_drive }}
-          INPUT_MESTRE: ${{ github.event.inputs.link_mestre }}
         run: |
           python -c '
           import os, robo
-          # Sobrescreve os links dinamicamente com o que você digitou na interface do GitHub
-          robo.executar_com_links("${{ github.event.inputs.link_drive }}", "${{ github.event.inputs.link_mestre }}")
+          robo.executar_processamento(print, custom_drive="${{ github.event.inputs.link_drive }}", custom_mestre="${{ github.event.inputs.link_mestre }}")
           '
 
       - name: Salvar a Lista Pronta
