@@ -31,10 +31,21 @@ def limpar_nome(texto):
     return re.sub(r'\s+', ' ', texto_limpo).strip().lower()
 
 def eh_canal_estrangeiro(nome_bruto):
-    """Filtra e bloqueia nomes com indicativos evidentes de língua estrangeira"""
+    """Filtro blindado para rejeitar qualquer sinal que não seja em português/Brasil"""
     bruto_upper = nome_bruto.upper()
-    bloqueios = ["ESPANOL", "SPANISH", "LATINO", "LAT.", "LATIN", "USA", "ENG", "ENGLISH", "[ES]", "[EN]", "(ES)", "(EN)"]
-    return any(termo in bruto_upper for termo in bloqueios)
+    
+    # Termos e tags comuns no iptv-org para indicativos estrangeiros
+    bloqueios_fortes = [
+        "ESPANOL", "SPANISH", "LATINO", "LAT.", "LATIN", "USA", "US", 
+        "ENG", "ENGLISH", "MEXICO", "ARGENTINA", "CHILE", "COLOMBIA", 
+        "U.S.", "[ES]", "[EN]", "(ES)", "(EN)", "EXT.", "INTL"
+    ]
+    
+    # Se encontrar qualquer termo estrangeiro no nome bruto, descarta imediatamente
+    if any(termo in bruto_upper for termo in bloqueios_fortes):
+        return True
+        
+    return False
 
 def injetar_marcador_vlc(linha, url_link=""):
     if not linha.startswith("#EXTINF"):
