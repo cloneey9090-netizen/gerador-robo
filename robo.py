@@ -57,11 +57,16 @@ def injetar_marcador_vlc(linha, url_link=""):
     tem_tokens_pesados = any(param in url_link for param in ["token=", "key=", "auth=", "secure=", "sig="])
     tem_porta_incomum = bool(re.search(r':\d{4,5}/', url_link))
     
-    # Se precisar do VLC e o marcador ainda não estiver lá
-    if (eh_http_inseguro or tem_tokens_pesados or tem_porta_incomum) and 'marcador=' not in linha:
-        # Garante que injeta exatamente antes da vírgula final do nome do canal
-        if ',' in linha:
-            partes = linha.rsplit(',', 1)
+    precisa_vlc = eh_http_inseguro or tem_tokens_pesados or tem_porta_incomum
+    
+    if precisa_vlc:
+        # Se já tiver o marcador em qualquer lugar, removemos primeiro para reposicionar limpo
+        linha_limpa = re.sub(r'\s*marcador="VLC"', '', linha)
+        
+        # Garante que separa os metadados da vírgula e nome do canal
+        if ',' in linha_limpa:
+            partes = linha_limpa.rsplit(',', 1)
+            # Injeta o marcador obrigatoriamente colado na extremidade final antes da vírgula
             return f'{partes[0].strip()} marcador="VLC",{partes[1]}'
             
     return linha
